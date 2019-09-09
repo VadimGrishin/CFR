@@ -57,7 +57,13 @@ def csv_dict_reader(file_obj):
             if div_ruk:
                 pos = re.findall(r'^(.+):', div_ruk[0])[0]
                 ruk = re.findall(r':(.+)', div_ruk[0])[0]
-                print(ruk, '**', pos)
+                print(ruk, 'var 1**', pos)
+            else:
+                div_ruk = re.findall(r'Руководство\s(.+)\sУчредителей:', elem_ruk.text)
+                pos = re.findall(r'^(.+):', div_ruk[0])[0]
+                ruk = re.findall(r':(.+)', div_ruk[0])[0]
+                print(ruk, 'var 2**', pos)
+
 
             data.append([inn, inncheck, name, pos, ruk])
 
@@ -84,19 +90,26 @@ def csv_dict_reader(file_obj):
                     pos = re.findall(r'^(.+):', div_ruk[0])[0]
                     ruk = re.findall(r':(.+)', div_ruk[0])[0]
                     print(ruk, '**', pos)
+                else:
+                    div_ruk = re.findall(r'Руководство\s(.+)\sУчредителей:', elem_ruk.text)
+                    pos = re.findall(r'^(.+):', div_ruk[0])[0]
+                    ruk = re.findall(r':(.+)', div_ruk[0])[0]
+                    print(ruk, 'var 2**', pos)
 
                 data.append([inn, inncheck, name, pos, ruk])
 
             except:
                 print(6, f'{name + inn} - error')
+
         print('--------------------------')
+
         csv_writer(data, "output_ruk.csv")
 
 driver = webdriver.Chrome()
 
 driver.get('https://www.prima-inform.ru')
 
-with open("ca1.csv") as f_obj:
+with open("ca1.csv", encoding="cp1251") as f_obj:
         csv_dict_reader(f_obj)
 
 driver.close()
