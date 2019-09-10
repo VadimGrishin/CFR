@@ -7,16 +7,16 @@ import time
 
 import csv
 data = [
-    ['INN', 'Name', 'ni']
+    ['INN', 'inn_check', 'Name', 'ni']
 ]
-
+print(time.ctime())
 
 def csv_writer(data, path):
     """
     Write data to a CSV file path
     """
     with open(path, "w", newline='') as csv_file:
-        writer = csv.writer(csv_file, delimiter=',')
+        writer = csv.writer(csv_file, delimiter=';')
         for line in data:
             writer.writerow(line)
 
@@ -29,19 +29,28 @@ def csv_dict_reader(file_obj):
     for line in reader:
         inn = line["INN"]
         name = line["Name"]
+        print(name + ' ' + inn)
 
         elem = driver.find_element_by_id("query")
         elem.clear()
         elem.send_keys(name)
 
         elem.send_keys(Keys.RETURN)
-        time.sleep(5)
+        #  time.sleep(3)
 
         ni = ''
+        incheck = ''
+
         try:
             elem_ni = driver.find_element_by_xpath('//strong[text()="Код налогового органа:"]/..')
             print(elem_ni.text)
-            div_ni = re.findall(r'Код налогового органа:\s(.+)\(', elem_ni.text)
+            div_ni = re.findall(r'Код налогового органа:\s*(\d+)\s*\(', elem_ni.text)
+            print('*****', div_ni)
+
+            elem_inncheck = driver.find_element_by_xpath('//strong[text()="ИНН:"]/..')
+            print('elem_inncheck', elem_inncheck.text)
+            inncheck = re.findall(r'ИНН:\s*(\d+)', elem_inncheck.text)[0]
+
             if div_ni:
                 ni = div_ni[0].strip()
                 print('-----------------------', ni)
@@ -51,35 +60,37 @@ def csv_dict_reader(file_obj):
             elem.clear()
             elem.send_keys(inn)
             elem.send_keys(Keys.RETURN)
-            time.sleep(5)
+            #  time.sleep(3)
             try:
                 elem_ni = driver.find_element_by_xpath('//strong[text()="Код налогового органа:"]/..')
                 print(elem_ni.text)
-                div_ni = re.findall(r'Код налогового органа:\s(.+)\(', elem_ni.text)
+                div_ni = re.findall(r'Код налогового органа:\s*(\d+)\s*\(', elem_ni.text)
+                print('*****', div_ni)
+
+                elem_inncheck = driver.find_element_by_xpath('//strong[text()="ИНН:"]/..')
+                print('elem_inncheck', elem_inncheck.text)
+                inncheck = re.findall(r'ИНН:\s*(\d+)', elem_inncheck.text)[0]
+
                 if div_ni:
                     ni = div_ni[0].strip()
                     print('-----------------------', ni)
             except:
                 print(f'{name + inn} - error')
 
-
-
-        data.append([inn, name, ni])
+        print('----------------------------------------')
+        data.append([inn, inncheck, name, ni])
+        csv_writer(data, "output_ni.csv")
 
 
 driver = webdriver.Chrome()
 
 driver.get('https://www.prima-inform.ru')
 
-with open("ca.csv") as f_obj:
+with open("ca1.csv") as f_obj:
         csv_dict_reader(f_obj)
 
 driver.close()
-
-print(data)
-path = "output_ni.csv"
-csv_writer(data, path)
-
+print(time.ctime())
 
 # client = MongoClient('mongodb://127.0.0.1:27017')
 #
@@ -95,8 +106,6 @@ csv_writer(data, path)
 
 # elem = driver.find_element_by_id("mailbox:password")
 # elem.send_keys('tobeornot1')  # пароль
-
-exit()
 
 # for i in range(len(elems)):
 #
